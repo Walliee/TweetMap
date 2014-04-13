@@ -23,6 +23,7 @@
     <meta charset="utf-8">
      <style> 
        #map-canvas { 
+       	width: 100%;
         height: 100%;  
 		top: 40px;	
 		bottom: 0;
@@ -71,10 +72,8 @@
 	  
 	  map = new google.maps.Map(document.getElementById('map-canvas'), mapOptions);
 	  
-	  
 	  var geolocation = null;
 	  <% DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
-	  //Key tweetKey = KeyFactory.createKey("Tweet", "");
 	  Query query = new Query("Tweet");
 	  List<Entity> greetings = datastore.prepare(query).asList(FetchOptions.Builder.withLimit(3000).chunkSize(1000));
 	    if (!greetings.isEmpty()) {
@@ -115,7 +114,7 @@
 					<ul class="nav navbar-nav navbar-left">
 						<li class="divider-vertical"></li>
 						<li><a data-toggle="modal" href="#instructions">Instructions</a></li>
-						<li><a href="https://github.com/stickfigure/motomapia" target="_blank">Code</a></li>
+						<li><a href="https://github.com/Walliee/TweetMap" target="_blank">Code</a></li>
 					</ul>
 					<form class="navbar-form navbar-right">
 						<input id="heatmap" type="checkbox" name="Heat" class="btn btn-default"/>
@@ -130,7 +129,7 @@
 <!-- 			</div> -->
 		</div>
     <div id="map-canvas"></div>
-    <script type="text/javascript" charset="utf8" src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
+    <script type="text/javascript" charset="utf8" src="http://ajax.googleapis.com/ajax/libs/jquery/2.1.0/jquery.min.js"></script>
     <script type="text/javascript" charset="utf8" src="/js/bootstrap-switch.js"></script>
     <script type="text/javascript" charset="utf8" src="/bootstrap/js/bootstrap.min.js"></script>
 	<script type="text/javascript">$('#heatmap').bootstrapSwitch('onText','Heat');$('#heatmap').bootstrapSwitch('offText','Scatter');$('#heatmap').bootstrapSwitch('offColor','primary');$('#heatmap').bootstrapSwitch('size','small');</script>

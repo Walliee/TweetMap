@@ -1,6 +1,5 @@
 package com.anshul.tweetmap;
 
-
 import java.io.IOException;
 import java.util.Properties;
 
@@ -23,9 +22,6 @@ import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
-
-
-
 
 import twitter4j.GeoLocation;
 import twitter4j.HashtagEntity;
@@ -50,89 +46,62 @@ import java.util.List;
 
 public class TweetmapServlet extends HttpServlet {
   @Override
-  public void doGet(HttpServletRequest req, HttpServletResponse resp)
+  public void doPost(HttpServletRequest req, HttpServletResponse resp)
       throws IOException {
-    if (req.getParameter("testing") == null) {
-    	put();
-      resp.setContentType("text/plain");
-      resp.getWriter().println("Hello, this is a testing servlet. \n\n");
-      //Properties p = System.getProperties();
-      //p.list(resp.getWriter());
-      
-      
-
-    } else {
-    	get(resp);
-//      UserService userService = UserServiceFactory.getUserService();
-//      User currentUser = userService.getCurrentUser();
-//
-//      if (currentUser != null) {
-//        resp.setContentType("text/plain");
-//        resp.getWriter().println("Hello, " + currentUser.getNickname());
-//      } else {
-//        resp.sendRedirect(userService.createLoginURL(req.getRequestURI()));
-//      }
-    }
+	  if (req.getParameter("file") != null) {
+		  put(Integer.parseInt(req.getParameter("file")));
+	  }
   }
   
-  public void put() {
-		
-		JSONParser parser = new JSONParser();
-		
-		try {
-			for(int i=1;i<=1;i++) {
-				URL url = new URL("https://s3-us-west-2.amazonaws.com/com.tweetmap/test"+i+".json");
-				URLConnection connection = url.openConnection();
-				connection.setDoInput(true);
-				InputStream inStream = connection.getInputStream();
-				BufferedReader input = new BufferedReader(new InputStreamReader(  
-				        inStream));  
-				//FileReader input = new FileReader("/Users/Walliee/Documents/workspace/twitter/test"+i+".json");
-				Object obj = parser.parse(input);
-				JSONObject jsonObject =  (JSONObject) obj;
-				JSONArray jsonArray = (JSONArray) jsonObject.get("tweets");			
-				Iterator itr = jsonArray.iterator();
-				
-				while(itr.hasNext()) {
-					Status status = null;
-					try {
-						status = (Status) TwitterObjectFactory.createStatus(itr.next().toString());
-						System.out.println(status.getUser().getName());
-						//Key tweetKey = KeyFactory.createKey("Tweet", "Anshul");
-						Entity greeting = new Entity("Tweet");
-					    greeting.setProperty("text", status.getText());
-					    greeting.setProperty("user", status.getUser().getName());
-					    greeting.setProperty("lat", status.getGeoLocation().getLatitude());
-					    greeting.setProperty("long", status.getGeoLocation().getLongitude());
-					    greeting.setProperty("userImage", status.getUser().getMiniProfileImageURL());
-					    DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
-					    datastore.put(greeting);
-				
-					}
-					catch (TwitterException e) {
-						e.printStackTrace();
-					}
-				//objectify.
+  public void put(int fileNumber) {
+	JSONParser parser = new JSONParser();
+	
+	try {
+		//for(int i=1;i<=1;i++) {
+			URL url = new URL("https://s3-us-west-2.amazonaws.com/com.tweetmap/test"+fileNumber+".json");
+			URLConnection connection = url.openConnection();
+			connection.setDoInput(true);
+			InputStream inStream = connection.getInputStream();
+			BufferedReader input = new BufferedReader(new InputStreamReader(  
+			        inStream));  
+			//FileReader input = new FileReader("/Users/Walliee/Documents/workspace/twitter/test"+i+".json");
+			Object obj = parser.parse(input);
+			JSONObject jsonObject =  (JSONObject) obj;
+			JSONArray jsonArray = (JSONArray) jsonObject.get("tweets");			
+			Iterator itr = jsonArray.iterator();
+			
+			while(itr.hasNext()) {
+				Status status = null;
+				try {
+					status = (Status) TwitterObjectFactory.createStatus(itr.next().toString());
+					System.out.println(status.getUser().getName());
+					Entity greeting = new Entity("Tweet");
+				    greeting.setProperty("text", status.getText());
+				    greeting.setProperty("user", status.getUser().getName());
+				    greeting.setProperty("lat", status.getGeoLocation().getLatitude());
+				    greeting.setProperty("long", status.getGeoLocation().getLongitude());
+				    greeting.setProperty("userImage", status.getUser().getMiniProfileImageURL());
+				    DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
+				    datastore.put(greeting);
+			
+				}
+				catch (TwitterException e) {
+					e.printStackTrace();
 				}
 			}
-		}
-		catch (FileNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		catch (ParseException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		//}
 	}
-  
-  public void get(HttpServletResponse resp) throws IOException {
-	  resp.sendRedirect("/index.jsp");
-	  
-	  //datastore.get();
+	catch (FileNotFoundException e) {
+		// TODO Auto-generated catch block
+		e.printStackTrace();
+	}
+	catch (IOException e) {
+		// TODO Auto-generated catch block
+		e.printStackTrace();
+	}
+	catch (ParseException e) {
+		// TODO Auto-generated catch block
+		e.printStackTrace();
+	}
   }
 }
