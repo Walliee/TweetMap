@@ -99,11 +99,19 @@
     </script>
   </head>
   <body>
-  	<div class="navbar navbar-default navbar-fixed-top ng-scope">
-			<div class="navbar-inner">
+  	<div class="navbar navbar-inverse navbar-fixed-top">
+<!-- 			<div class="navbar-inner"> -->
 				<div class="container-fluid">
-					<a class="brand" href="#"><span class="moto">Tweet</span><span class="mapia">map</span></a>
-					<span class="navbar-text pull-left subtitle">see who tweets the most?</span>
+				<div class="navbar-header">
+					<button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+				        <span class="sr-only">Toggle navigation</span>
+				        <span class="icon-bar"></span>
+				        <span class="icon-bar"></span>
+				   		<span class="icon-bar"></span>
+				    </button>
+					<a class="navbar-brand" href="#"><span class="moto">Tweet</span><span class="mapia">map</span></a>
+				</div>
+				<div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
 					<ul class="nav navbar-nav navbar-left">
 						<li class="divider-vertical"></li>
 						<li><a data-toggle="modal" href="#instructions">Instructions</a></li>
@@ -115,12 +123,16 @@
 <!-- 						<input id="cluster" type="checkbox" name="CLuster" class="btn btn-default"/> -->
 					</form>
 				</div>
-			</div>
+				
+<!-- 					<span class="navbar-text pull-left subtitle">see who tweets the most?</span> -->
+					
+				</div>
+<!-- 			</div> -->
 		</div>
     <div id="map-canvas"></div>
     <script type="text/javascript" charset="utf8" src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
     <script type="text/javascript" charset="utf8" src="/js/bootstrap-switch.js"></script>
-<!--     <script type="text/javascript" charset="utf8" src="/bootstrap/js/bootstrap.min.js"></script> -->
+    <script type="text/javascript" charset="utf8" src="/bootstrap/js/bootstrap.min.js"></script>
 	<script type="text/javascript">$('#heatmap').bootstrapSwitch('onText','Heat');$('#heatmap').bootstrapSwitch('offText','Scatter');$('#heatmap').bootstrapSwitch('offColor','primary');$('#heatmap').bootstrapSwitch('size','small');</script>
 	<script type="text/javascript">$('#pics').bootstrapSwitch('onText','Pics');$('#pics').bootstrapSwitch('offText','Dots');$('#pics').bootstrapSwitch('offColor','primary');$('#pics').bootstrapSwitch('size','small');</script>
 <!-- 	<script type="text/javascript">$('#cluster').bootstrapSwitch('onText','off');$('#cluster').bootstrapSwitch('offText','Cluster');$('#cluster').bootstrapSwitch('offColor','primary');$('#cluster').bootstrapSwitch('size','small');</script> -->
