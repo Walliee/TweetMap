@@ -7,7 +7,6 @@
 <%@ page import="com.google.appengine.api.datastore.KeyFactory" %>
 <%@ page import="com.google.appengine.api.datastore.Query" %>
 <%@ page import="java.util.List" %>
-<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <html>
   <head>
     <title>TweetMap</title>
@@ -99,44 +98,86 @@
   </head>
   <body>
   	<div class="navbar navbar-inverse navbar-fixed-top">
-<!-- 			<div class="navbar-inner"> -->
-				<div class="container-fluid">
-				<div class="navbar-header">
-					<button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
-				        <span class="sr-only">Toggle navigation</span>
-				        <span class="icon-bar"></span>
-				        <span class="icon-bar"></span>
-				   		<span class="icon-bar"></span>
-				    </button>
-					<a class="navbar-brand" href="#"><span class="moto">Tweet</span><span class="mapia">map</span></a>
-				</div>
-				<div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
-					<ul class="nav navbar-nav navbar-left">
-						<li class="divider-vertical"></li>
-						<li><a data-toggle="modal" href="#instructions">Instructions</a></li>
-						<li><a href="https://github.com/Walliee/TweetMap" target="_blank">Code</a></li>
-					</ul>
-					<form class="navbar-form navbar-right">
-						<input id="heatmap" type="checkbox" name="Heat" class="btn btn-default"/>
-						<input id="pics" type="checkbox" name="Pictures" class="btn btn-default"/>
-<!-- 						<input id="cluster" type="checkbox" name="CLuster" class="btn btn-default"/> -->
-					</form>
-				</div>
-				
-<!-- 					<span class="navbar-text pull-left subtitle">see who tweets the most?</span> -->
-					
-				</div>
-<!-- 			</div> -->
+		<div class="container-fluid">
+			<div class="navbar-header">
+				<button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+			        <span class="sr-only">Toggle navigation</span>
+			        <span class="icon-bar"></span>
+			        <span class="icon-bar"></span>
+			   		<span class="icon-bar"></span>
+			    </button>
+				<a class="navbar-brand" href="#"><span class="moto">Tweet</span><span class="mapia">map</span></a>
+			</div>
+			<div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+				<ul class="nav navbar-nav navbar-left">
+					<li class="divider-vertical"></li>
+					<li><a data-toggle="modal" href="#instructions">Instructions</a></li>
+					<li><a href="https://github.com/Walliee/TweetMap" target="_blank">Code</a></li>
+				</ul>
+				<form class="navbar-form navbar-right">
+					<input id="heatmap" type="checkbox" name="Heat" class="btn btn-default"/>
+					<input id="pics" type="checkbox" name="Pictures" class="btn btn-default"/>
+				</form>
+			</div>					
 		</div>
+	</div>
     <div id="map-canvas"></div>
     <script type="text/javascript" charset="utf8" src="http://ajax.googleapis.com/ajax/libs/jquery/2.1.0/jquery.min.js"></script>
     <script type="text/javascript" charset="utf8" src="/js/bootstrap-switch.js"></script>
     <script type="text/javascript" charset="utf8" src="/bootstrap/js/bootstrap.min.js"></script>
-	<script type="text/javascript">$('#heatmap').bootstrapSwitch('onText','Heat');$('#heatmap').bootstrapSwitch('offText','Scatter');$('#heatmap').bootstrapSwitch('offColor','primary');$('#heatmap').bootstrapSwitch('size','small');</script>
-	<script type="text/javascript">$('#pics').bootstrapSwitch('onText','Pics');$('#pics').bootstrapSwitch('offText','Dots');$('#pics').bootstrapSwitch('offColor','primary');$('#pics').bootstrapSwitch('size','small');</script>
-<!-- 	<script type="text/javascript">$('#cluster').bootstrapSwitch('onText','off');$('#cluster').bootstrapSwitch('offText','Cluster');$('#cluster').bootstrapSwitch('offColor','primary');$('#cluster').bootstrapSwitch('size','small');</script> -->
-<!--     <script type="text/javascript">$('#cluster').on('switchChange.bootstrapSwitch', function (e) {markerCluster.clearMarkers();markerCluster.redraw();});</script> -->
-    <script type="text/javascript">$('#pics').on('switchChange.bootstrapSwitch', function (e) { if(dotMarkers[0].getVisible()==true) {for(var i=0;i<picMarkers.length;i++) {picMarkers[i].setVisible(true); dotMarkers[i].setVisible(false);} markerCluster.clearMarkers(); markerCluster.addMarkers(picMarkers); markerCluster.redraw(); $('#heatmap').bootstrapSwitch('disabled',true);} else {for(var i=0;i<picMarkers.length;i++) {picMarkers[i].setVisible(false); dotMarkers[i].setVisible(true);} markerCluster.clearMarkers(); markerCluster.addMarkers(dotMarkers); markerCluster.redraw();$('#heatmap').bootstrapSwitch('disabled',false);} });</script>
-    <script type="text/javascript">$('#heatmap').on('switchChange.bootstrapSwitch', function (e) { if (heatmap.getMap() == null) {heatmap.setMap(map); for (var i=0; i<dotMarkers.length; i++) {dotMarkers[i].setVisible(false);} markerCluster.clearMarkers(); markerCluster.redraw(); } else {heatmap.setMap(null); for (var i=0; i<dotMarkers.length; i++) {dotMarkers[i].setVisible(true);} markerCluster.addMarkers(dotMarkers); markerCluster.redraw();}});</script>
+	<script type="text/javascript">
+		$('#heatmap').bootstrapSwitch('onText','Heat');
+		$('#heatmap').bootstrapSwitch('offText','Scatter');
+		$('#heatmap').bootstrapSwitch('offColor','primary');
+		$('#heatmap').bootstrapSwitch('size','small');
+	</script>
+	<script type="text/javascript">
+		$('#pics').bootstrapSwitch('onText','Pics');
+		$('#pics').bootstrapSwitch('offText','Dots');
+		$('#pics').bootstrapSwitch('offColor','primary');
+		$('#pics').bootstrapSwitch('size','small');
+	</script>
+    <script type="text/javascript">
+    	$('#pics').on('switchChange.bootstrapSwitch', function (e) { 
+    														if(dotMarkers[0].getVisible()==true) {
+    															for(var i=0;i<picMarkers.length;i++) {
+    																picMarkers[i].setVisible(true); 
+    																dotMarkers[i].setVisible(false);
+    															} 
+    															markerCluster.clearMarkers(); 
+    															markerCluster.addMarkers(picMarkers); 
+    															markerCluster.redraw(); 
+    															$('#heatmap').bootstrapSwitch('disabled',true);
+    														} else {
+    															for(var i=0;i<picMarkers.length;i++) {
+    																picMarkers[i].setVisible(false); 
+    																dotMarkers[i].setVisible(true);
+    															} 
+    															markerCluster.clearMarkers(); 
+    															markerCluster.addMarkers(dotMarkers); 
+    															markerCluster.redraw();
+    															$('#heatmap').bootstrapSwitch('disabled',false);
+    														} 
+    													});
+    </script>
+    <script type="text/javascript">
+    	$('#heatmap').on('switchChange.bootstrapSwitch', function (e) { 
+    															if (heatmap.getMap() == null) {
+    																heatmap.setMap(map); 
+    																for (var i=0; i<dotMarkers.length; i++) {
+    																	dotMarkers[i].setVisible(false);
+    																} 
+    																markerCluster.clearMarkers(); 
+    																markerCluster.redraw(); 
+    															} else {
+    																heatmap.setMap(null); 
+    																for (var i=0; i<dotMarkers.length; i++) {
+    																	dotMarkers[i].setVisible(true);
+    																} 
+    																markerCluster.addMarkers(dotMarkers); 
+    																markerCluster.redraw();
+    															}
+    														});
+    </script>
   </body>
 </html>
