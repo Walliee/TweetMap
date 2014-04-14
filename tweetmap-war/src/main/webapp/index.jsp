@@ -13,11 +13,11 @@
     <link rel="stylesheet" type="text/css" href="/bootstrap/css/bootstrap.css" />
     <link href="/bootstrap/css/bootstrap-switch.css" rel="stylesheet">
 		
-		<!-- These need to go together to prevent FOUC. In a production app, less would be compiled statically. -->
-		<link rel="stylesheet/less" type="text/css" href="/css/motomapia.less" />
-		<script type="text/javascript" charset="utf8" src="/js/less-1.3.0.min.js"></script>
-		<script type="text/javascript" src="/js/markerclusterer.js"></script>
-		<script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?libraries=visualization&sensor=false"></script>
+	<!-- These need to go together to prevent FOUC. In a production app, less would be compiled statically. -->
+	<link rel="stylesheet/less" type="text/css" href="/css/motomapia.less" />
+	<script type="text/javascript" charset="utf8" src="/js/less-1.3.0.min.js"></script>
+	<script type="text/javascript" src="/js/markerclusterer.js"></script>
+	<script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?libraries=visualization&sensor=false"></script>
     <meta name="viewport" content="initial-scale=1.0, user-scalable=no">
     <meta charset="utf-8">
      <style> 
@@ -46,11 +46,12 @@
     	  'elementType': 'geometry',
     	  'stylers': [{'visibility': 'on'}, {'hue': '#5f94ff'}, {'lightness': 30}]
     	}];
-	var map;
+    var map;
+	var markers = [];
 	var heatmapData = [];
-	var picMarkers = [];
-	var dotMarkers = [];
+	var heatmap;
 	var markerCluster;
+	var picArray = [];
 	var iconImage = {
 	          path: google.maps.SymbolPath.CIRCLE,
 	          scale: 2,
@@ -59,6 +60,7 @@
 	          fillColor: '#00F',
 	          fillOpacity: 0.5
 	        };
+	
 	function initialize() {
 	  var mapOptions = {
 	    zoom: 2,
@@ -71,28 +73,76 @@
 	  
 	  map = new google.maps.Map(document.getElementById('map-canvas'), mapOptions);
 	  
-	  var geolocation = null;
-	  <% DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
-	  Query query = new Query("Tweet");
-	  List<Entity> greetings = datastore.prepare(query).asList(FetchOptions.Builder.withLimit(3000).chunkSize(1000));
-	    if (!greetings.isEmpty()) {
-	    	for (Entity greeting : greetings) {
-		    		out.println("geolocation = new google.maps.LatLng(" + greeting.getProperty("lat") + "," + greeting.getProperty("long")+");");
-		    		out.println("heatmapData.push(geolocation);");
-		    		out.println("picMarkers.push(new google.maps.Marker({ position:geolocation,map:map,visible:false, icon: {url: '"+ greeting.getProperty("userImage") +"'}}));");
-		    		out.println("dotMarkers.push(new google.maps.Marker({ position:geolocation,map:map, icon: iconImage}));");
-		    	}
-		    }%>
-	    markerCluster = new MarkerClusterer(map, dotMarkers);
-	    markerCluster.setMaxZoom(4);
+	  var script = document.createElement('script');
+	  script.setAttribute('src', '/query?callback=tweet_callback');
+	  document.getElementsByTagName('head')[0].appendChild(script);
 	}
-	var heatmap = new google.maps.visualization.HeatmapLayer({
-	    data: heatmapData,
-	    dissipating: true,
-	    maxIntensity: 8,
-	    map: map
-	  });
+	
 	google.maps.event.addDomListener(window, 'load', initialize);
+	
+	// Defines the callback function referenced in the jsonp file.
+	function tweet_callback(data) {
+	  //map.data.addGeoJson(data);
+	  for (var i = 0; i < data.features.length; i++) {
+		  var dataFeatures = data.features[i];
+		  var contentString = '<p><b>' + dataFeatures.properties.user + '</b> : ' + dataFeatures.properties.text + '</p>';
+		  picArray.push(dataFeatures.properties.userImage);
+		  var infowindow = new google.maps.InfoWindow({
+		      content: contentString
+		  });
+          var latLng = new google.maps.LatLng(dataFeatures.geometry.coordinates[1],
+        		  dataFeatures.geometry.coordinates[0]);
+          heatmapData.push(latLng);
+          var marker = new google.maps.Marker({
+            position: latLng,
+            html: contentString
+          });
+          google.maps.event.addListener(marker, 'click', function() {
+        	  infowindow.setContent(this.html);
+        	  infowindow.open(map, this);
+        	  });
+          markers.push(marker);
+	  }
+	  markerCluster = new MarkerClusterer(map, markers);
+	  markerCluster.setMaxZoom(4);
+	  heatmap = new google.maps.visualization.HeatmapLayer({
+		    data: heatmapData,
+		    dissipating: true,
+		    maxIntensity: 8,
+		    map: null
+		  });
+	  //photoOff();
+	}
+	
+	function heatmapOn() {
+		for(var i=0;i<markers.length;i++) {
+			  markers[i].setVisible(false);
+		  }
+		  markerCluster.clearMarkers(); 
+		  markerCluster.redraw();
+		  heatmap.setMap(map);
+	}
+	
+	function heatmapOff() {
+		heatmap.setMap(null);
+		for(var i=0;i<markers.length;i++) {
+			  markers[i].setVisible(true);
+		  }
+		  markerCluster.addMarkers(markers); 
+		  markerCluster.redraw();
+	}
+	
+	function photoOn() {
+		for(var i=0;i<markers.length;i++) {
+			  markers[i].setIcon(picArray[i]);
+		  }
+	}
+	
+	function photoOff() {
+		for(var i=0;i<markers.length;i++) {
+			  markers[i].setIcon(null);
+		  }
+	}
 
     </script>
   </head>
@@ -139,43 +189,19 @@
 	</script>
     <script type="text/javascript">
     	$('#pics').on('switchChange.bootstrapSwitch', function (e) { 
-    														if(dotMarkers[0].getVisible()==true) {
-    															for(var i=0;i<picMarkers.length;i++) {
-    																picMarkers[i].setVisible(true); 
-    																dotMarkers[i].setVisible(false);
-    															} 
-    															markerCluster.clearMarkers(); 
-    															markerCluster.addMarkers(picMarkers); 
-    															markerCluster.redraw(); 
-    															$('#heatmap').bootstrapSwitch('disabled',true);
+    														if(markers[0].getIcon()==null) {
+    															photoOn();
     														} else {
-    															for(var i=0;i<picMarkers.length;i++) {
-    																picMarkers[i].setVisible(false); 
-    																dotMarkers[i].setVisible(true);
-    															} 
-    															markerCluster.clearMarkers(); 
-    															markerCluster.addMarkers(dotMarkers); 
-    															markerCluster.redraw();
-    															$('#heatmap').bootstrapSwitch('disabled',false);
+    															photoOff();
     														} 
     													});
     </script>
     <script type="text/javascript">
     	$('#heatmap').on('switchChange.bootstrapSwitch', function (e) { 
     															if (heatmap.getMap() == null) {
-    																heatmap.setMap(map); 
-    																for (var i=0; i<dotMarkers.length; i++) {
-    																	dotMarkers[i].setVisible(false);
-    																} 
-    																markerCluster.clearMarkers(); 
-    																markerCluster.redraw(); 
+    																heatmapOn(); 
     															} else {
-    																heatmap.setMap(null); 
-    																for (var i=0; i<dotMarkers.length; i++) {
-    																	dotMarkers[i].setVisible(true);
-    																} 
-    																markerCluster.addMarkers(dotMarkers); 
-    																markerCluster.redraw();
+    																heatmapOff();
     															}
     														});
     </script>

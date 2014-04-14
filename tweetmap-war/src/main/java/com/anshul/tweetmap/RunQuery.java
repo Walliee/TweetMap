@@ -34,7 +34,7 @@ public class RunQuery extends HttpServlet {
 		//resp.getWriter().println("hello");
 		DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
 		Query query = new Query("Tweet");
-		List<Entity> greetings = datastore.prepare(query).asList(FetchOptions.Builder.withLimit(3000).chunkSize(1000));
+		List<Entity> greetings = datastore.prepare(query).asList(FetchOptions.Builder.withLimit(10000).chunkSize(1000));
 		if (!greetings.isEmpty()) {
 			try {
 				for (Entity greeting : greetings) {
