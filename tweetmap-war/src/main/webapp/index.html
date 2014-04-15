@@ -1,12 +1,4 @@
-<%@ page contentType="text/html;charset=UTF-8" language="java" %>
-<%@ page import="com.google.appengine.api.datastore.DatastoreService" %>
-<%@ page import="com.google.appengine.api.datastore.DatastoreServiceFactory" %>
-<%@ page import="com.google.appengine.api.datastore.Entity" %>
-<%@ page import="com.google.appengine.api.datastore.FetchOptions" %>
-<%@ page import="com.google.appengine.api.datastore.Key" %>
-<%@ page import="com.google.appengine.api.datastore.KeyFactory" %>
-<%@ page import="com.google.appengine.api.datastore.Query" %>
-<%@ page import="java.util.List" %>
+<!DOCTYPE html>
 <html>
   <head>
     <title>TweetMap</title>
@@ -73,9 +65,18 @@
 	  
 	  map = new google.maps.Map(document.getElementById('map-canvas'), mapOptions);
 	  
-	  var script = document.createElement('script');
-	  script.setAttribute('src', '/query?callback=tweet_callback');
-	  document.getElementsByTagName('head')[0].appendChild(script);
+	  append_script('/query?callback=tweet_callback');
+	}
+	
+	function append_script(url) {
+		var tags = document.getElementsByTagName('script');
+		 for (var i = tags.length; i >= 0; i--){ //search backwards within nodelist for matching elements to remove
+		  if (tags[i] && tags[i].getAttribute('src') != null && tags[i].getAttribute('src').indexOf('/query?callback=tweet_callback') != -1)
+		   tags[i].parentNode.removeChild(tags[i]); //remove element by calling parentNode.removeChild()
+		 }
+		var script = document.createElement('script');
+		script.setAttribute('src', url);
+		document.getElementsByTagName('head')[0].appendChild(script);
 	}
 	
 	google.maps.event.addDomListener(window, 'load', initialize);
@@ -164,6 +165,12 @@
 					<li><a data-toggle="modal" href="#instructions">Instructions</a></li>
 					<li><a href="https://github.com/Walliee/TweetMap" target="_blank">Code</a></li>
 				</ul>
+				<form class="navbar-form navbar-left">
+			      	<div class="form-group">
+			          <input id="search" type="text" class="form-control" placeholder="Search">
+			        </div>
+			        <button id="submit" type="button" class="btn btn-default">Submit</button>
+			    </form>
 				<form class="navbar-form navbar-right">
 					<input id="heatmap" type="checkbox" name="Heat" class="btn btn-default"/>
 					<input id="pics" type="checkbox" name="Pictures" class="btn btn-default"/>
@@ -205,5 +212,19 @@
     															}
     														});
     </script>
+     <script type="text/javascript">
+    	$('#submit').on('click', function (e) {
+    		markers = [];
+    		heatmapData = [];
+    		heatmap.setMap(null);
+    		markerCluster.clearMarkers(); 
+  		  	markerCluster.redraw();
+    		picArray = [];
+    		var url = "/queryservlet?callback=tweet_callback&q=";
+    		var query = $('#search').val();
+    		var link = url.concat(query);
+    		append_script(link);
+    	});
+     </script>
   </body>
 </html>

@@ -81,6 +81,7 @@ public class TweetmapServlet extends HttpServlet {
 				    greeting.setProperty("lat", status.getGeoLocation().getLatitude());
 				    greeting.setProperty("long", status.getGeoLocation().getLongitude());
 				    greeting.setProperty("userImage", status.getUser().getMiniProfileImageURL());
+				    greeting.setProperty("dateCreated", status.getCreatedAt());
 				    DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
 				    datastore.put(greeting);
 			

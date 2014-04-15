@@ -31,7 +31,6 @@ public class RunQuery extends HttpServlet {
 		JSONArray  tweets = new JSONArray();
 		JSONObject tweet;
 		
-		//resp.getWriter().println("hello");
 		DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
 		Query query = new Query("Tweet");
 		List<Entity> greetings = datastore.prepare(query).asList(FetchOptions.Builder.withLimit(10000).chunkSize(1000));

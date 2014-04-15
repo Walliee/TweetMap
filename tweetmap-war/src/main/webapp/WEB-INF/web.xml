@@ -5,8 +5,17 @@
 	<servlet-class>com.anshul.tweetmap.TweetmapServlet</servlet-class>
 	</servlet>
 	<servlet>
+	<servlet-name>indexbuild</servlet-name>
+	<servlet-class>com.anshul.tweetmap.IndexBuilderServlet</servlet-class>
+	</servlet>
+	<servlet>
 		<servlet-name>enqueue</servlet-name>
 		<servlet-class>com.anshul.tweetmap.Enqueue</servlet-class>
+		<load-on-startup>1</load-on-startup>
+	</servlet>
+	<servlet>
+		<servlet-name>queryservlet</servlet-name>
+		<servlet-class>com.anshul.tweetmap.QueryServlet</servlet-class>
 		<load-on-startup>1</load-on-startup>
 	</servlet>
 	<servlet>
@@ -19,6 +28,10 @@
 		<url-pattern>/tweetmap</url-pattern>
 	</servlet-mapping>
 	<servlet-mapping>
+		<servlet-name>indexbuild</servlet-name>
+		<url-pattern>/indexbuild</url-pattern>
+	</servlet-mapping>
+	<servlet-mapping>
 		<servlet-name>enqueue</servlet-name>
 		<url-pattern>/enqueue</url-pattern>
 	</servlet-mapping>
@@ -26,7 +39,11 @@
 		<servlet-name>query</servlet-name>
 		<url-pattern>/query</url-pattern>
 	</servlet-mapping>
+	<servlet-mapping>
+		<servlet-name>queryservlet</servlet-name>
+		<url-pattern>/queryservlet</url-pattern>
+	</servlet-mapping>
 	<welcome-file-list>
-		<welcome-file>index.jsp</welcome-file>
+		<welcome-file>index.html</welcome-file>
 	</welcome-file-list>
 </web-app>
