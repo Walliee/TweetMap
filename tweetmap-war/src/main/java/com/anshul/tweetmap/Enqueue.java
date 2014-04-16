@@ -21,6 +21,7 @@ public class Enqueue extends HttpServlet {
         Queue queue = QueueFactory.getDefaultQueue();
         for(int i=1; i<=file; i++) {
         	queue.add(withUrl("/tweetmap").param("file", Integer.toString(i)));
+        	queue.add(withUrl("/indexbuild").param("file", Integer.toString(i)));
         }
 
         response.sendRedirect("/");

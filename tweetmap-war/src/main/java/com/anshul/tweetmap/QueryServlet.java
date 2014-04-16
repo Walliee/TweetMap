@@ -15,13 +15,15 @@ import com.google.appengine.api.search.SearchException;
 import com.google.appengine.api.search.Index;
 import com.google.appengine.api.search.IndexSpec;
 import com.google.appengine.api.search.SearchServiceFactory;
+import com.google.appengine.api.search.Query;
+import com.google.appengine.api.search.QueryOptions;
 //import com.google.appengine.api.search.Document;
 
 public class QueryServlet extends HttpServlet {
 	@Override
 	public void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
 		String callBackJavaScripMethodName = req.getParameter("callback");
-		String query = req.getParameter("q");
+		String queryString = req.getParameter("q");
 		JSONObject json	= new JSONObject();
 		JSONArray  tweets = new JSONArray();
 		JSONObject tweet;
@@ -31,6 +33,12 @@ public class QueryServlet extends HttpServlet {
 		
 		try {
 		    //String queryString = "product: piano AND price &lt; 5000";
+			QueryOptions options = QueryOptions.newBuilder()
+				     				.setLimit(1000)
+				     				.build();
+			Query query = Query.newBuilder()
+							.setOptions(options)
+							.build(queryString);
 		    Results<ScoredDocument> results = index.search(query);
 
 		    // Iterate over the documents in the results
@@ -49,7 +57,7 @@ public class QueryServlet extends HttpServlet {
 				properties.put("text", document.getOnlyField("text").getText());
 				properties.put("userImage", document.getOnlyField("userImage").getAtom());
 				properties.put("user", document.getOnlyField("user").getAtom());
-				//properties.put("dateCreated", document.getOnlyField("dateCreated").getDate());
+				properties.put("dateCreated", document.getOnlyField("dateCreated").getDate().toString());
 				tweet.put("properties", properties);
 				
 				tweet.put("type", "Feature");

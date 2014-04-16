@@ -44,6 +44,7 @@
 	var heatmap;
 	var markerCluster;
 	var picArray = [];
+	var scriptUrl;
 	var iconImage = {
 	          path: google.maps.SymbolPath.CIRCLE,
 	          scale: 2,
@@ -64,14 +65,14 @@
 	  };
 	  
 	  map = new google.maps.Map(document.getElementById('map-canvas'), mapOptions);
-	  
-	  append_script('/query?callback=tweet_callback');
+	  scriptUrl = '/query?callback=tweet_callback';
+	  append_script(scriptUrl);
 	}
 	
 	function append_script(url) {
 		var tags = document.getElementsByTagName('script');
 		 for (var i = tags.length; i >= 0; i--){ //search backwards within nodelist for matching elements to remove
-		  if (tags[i] && tags[i].getAttribute('src') != null && tags[i].getAttribute('src').indexOf('/query?callback=tweet_callback') != -1)
+		  if (tags[i] && tags[i].getAttribute('src') != null && tags[i].getAttribute('src').indexOf(scriptUrl) != -1)
 		   tags[i].parentNode.removeChild(tags[i]); //remove element by calling parentNode.removeChild()
 		 }
 		var script = document.createElement('script');
@@ -86,7 +87,8 @@
 	  //map.data.addGeoJson(data);
 	  for (var i = 0; i < data.features.length; i++) {
 		  var dataFeatures = data.features[i];
-		  var contentString = '<p><b>' + dataFeatures.properties.user + '</b> : ' + dataFeatures.properties.text + '</p>';
+		  var contentString = '<p><b>' + dataFeatures.properties.user + '</b> : ' + dataFeatures.properties.text
+		  						+ '<br><small> on '+ dataFeatures.properties.dateCreated + '</small></p>';
 		  picArray.push(dataFeatures.properties.userImage);
 		  var infowindow = new google.maps.InfoWindow({
 		      content: contentString
@@ -221,6 +223,7 @@
   		  	markerCluster.redraw();
     		picArray = [];
     		var url = "/queryservlet?callback=tweet_callback&q=";
+    		scriptUrl = url;
     		var query = $('#search').val();
     		var link = url.concat(query);
     		append_script(link);

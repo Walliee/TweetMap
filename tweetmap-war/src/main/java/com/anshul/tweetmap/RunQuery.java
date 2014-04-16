@@ -51,6 +51,7 @@ public class RunQuery extends HttpServlet {
 					properties.put("text", greeting.getProperty("text"));
 					properties.put("userImage", greeting.getProperty("userImage"));
 					properties.put("user", greeting.getProperty("user"));
+					properties.put("dateCreated", greeting.getProperty("dateCreated").toString());
 					tweet.put("properties", properties);
 					
 					tweet.put("type", "Feature");

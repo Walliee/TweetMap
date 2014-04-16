@@ -39,7 +39,7 @@ import java.util.ArrayList;
 
 public class IndexBuilderServlet extends HttpServlet {
   @Override
-  public void doGet(HttpServletRequest req, HttpServletResponse resp)
+  public void doPost(HttpServletRequest req, HttpServletResponse resp)
       throws IOException {
 	  if (req.getParameter("file") != null) {
 		  put(Integer.parseInt(req.getParameter("file")));
@@ -74,6 +74,7 @@ public class IndexBuilderServlet extends HttpServlet {
 					Document doc = Document.newBuilder()
 						    .addField(Field.newBuilder().setName("text").setText(status.getText()))
 						    .addField(Field.newBuilder().setName("user").setAtom(status.getUser().getName()))
+						    .addField(Field.newBuilder().setName("userScreenName").setAtom("@".concat(status.getUser().getScreenName())))
 						    .addField(Field.newBuilder().setName("userImage").setAtom(status.getUser().getMiniProfileImageURL()))
 						    .addField(Field.newBuilder().setName("dateCreated").setDate(status.getCreatedAt()))
 						    .addField(Field.newBuilder().setName("location").setGeoPoint(geoPoint))
