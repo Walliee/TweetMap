@@ -17,6 +17,7 @@ import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 
+import twitter4j.HashtagEntity;
 import twitter4j.Status;
 import twitter4j.TwitterException;
 import twitter4j.TwitterObjectFactory;
@@ -69,14 +70,21 @@ public class IndexBuilderServlet extends HttpServlet {
 				try {
 					status = (Status) TwitterObjectFactory.createStatus(itr.next().toString());
 					System.out.println(status.getUser().getName());
-					Entity greeting = new Entity("Tweet");
+					//Entity greeting = new Entity("Tweet");
 					GeoPoint geoPoint = new GeoPoint(status.getGeoLocation().getLatitude(), status.getGeoLocation().getLongitude());
+					HashtagEntity[] hashtagEntities = status.getHashtagEntities();
+	            	String hash = "";
+	            	for (HashtagEntity entity:hashtagEntities) {
+	            		hash = hash.concat(" ").concat(entity.getText());
+	            	}
+				    
 					Document doc = Document.newBuilder()
 						    .addField(Field.newBuilder().setName("text").setText(status.getText()))
 						    .addField(Field.newBuilder().setName("user").setAtom(status.getUser().getName()))
 						    .addField(Field.newBuilder().setName("userScreenName").setAtom("@".concat(status.getUser().getScreenName())))
 						    .addField(Field.newBuilder().setName("userImage").setAtom(status.getUser().getMiniProfileImageURL()))
 						    .addField(Field.newBuilder().setName("dateCreated").setDate(status.getCreatedAt()))
+						    .addField(Field.newBuilder().setName("hashtags").setText(hash))
 						    .addField(Field.newBuilder().setName("location").setGeoPoint(geoPoint))
 						    .build();
 						    

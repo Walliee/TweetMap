@@ -79,7 +79,12 @@ public class TweetmapServlet extends HttpServlet {
 				    greeting.setProperty("text", status.getText());
 				    greeting.setProperty("user", status.getUser().getName());
 				    greeting.setProperty("userScreenName", "@".concat(status.getUser().getScreenName()));
-				    //greeting.setProperty("hashtags", status.getHashtagEntities());
+				    HashtagEntity[] hashtagEntities = status.getHashtagEntities();
+	            	String hash = "";
+	            	for (HashtagEntity entity:hashtagEntities) {
+	            		hash = hash.concat(" ").concat(entity.getText());
+	            	}
+				    greeting.setProperty("hashtags", hash);
 				    greeting.setProperty("lat", status.getGeoLocation().getLatitude());
 				    greeting.setProperty("long", status.getGeoLocation().getLongitude());
 				    greeting.setProperty("userImage", status.getUser().getMiniProfileImageURL());

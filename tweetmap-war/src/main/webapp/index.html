@@ -8,6 +8,7 @@
 	<!-- These need to go together to prevent FOUC. In a production app, less would be compiled statically. -->
 	<link rel="stylesheet/less" type="text/css" href="/css/motomapia.less" />
 	<script type="text/javascript" charset="utf8" src="/js/less-1.3.0.min.js"></script>
+	<script type="text/javascript" charset="utf8" src="/js/ExtDraggableObject.js"></script>
 	<script type="text/javascript" src="/js/markerclusterer.js"></script>
 	<script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?libraries=visualization&sensor=false"></script>
     <meta name="viewport" content="initial-scale=1.0, user-scalable=no">
@@ -85,6 +86,12 @@
 	// Defines the callback function referenced in the jsonp file.
 	function tweet_callback(data) {
 	  //map.data.addGeoJson(data);
+	  $('#draggableElement').empty();
+	  for (var i = 0; i < data.hash.length; i++) {
+		  var dataFeatures = data.hash[i];
+		  var contentString = '<p>#' + dataFeatures.hashtag + ' : ' + dataFeatures.frequency + '<p>';
+		  $('#draggableElement').append(contentString);
+	  }
 	  for (var i = 0; i < data.features.length; i++) {
 		  var dataFeatures = data.features[i];
 		  var contentString = '<p><b>' + dataFeatures.properties.user + '</b> : ' + dataFeatures.properties.text
@@ -107,7 +114,7 @@
           markers.push(marker);
 	  }
 	  markerCluster = new MarkerClusterer(map, markers);
-	  markerCluster.setMaxZoom(4);
+	  markerCluster.setMaxZoom(10);
 	  heatmap = new google.maps.visualization.HeatmapLayer({
 		    data: heatmapData,
 		    dissipating: true,
@@ -181,6 +188,17 @@
 		</div>
 	</div>
     <div id="map-canvas"></div>
+    <div id="draggableElement" style="position:absolute;width:auto;height:auto;background:#FFFFFF;top:50px;left:0px;visibility:visible;opacity:0.7;padding:25px;"></div>
+	<script type="text/javascript">
+	// -- code goes here --
+	
+	var x = new ExtDraggableObject(document.getElementById("draggableElement"));
+	//map.controls[google.maps.ControlPosition.RIGHT_BOTTOM].push(x);
+	
+	// -- code goes here --
+	
+	//$("#debug").html("debugging info")
+	</script>
     <script type="text/javascript" charset="utf8" src="http://ajax.googleapis.com/ajax/libs/jquery/2.1.0/jquery.min.js"></script>
     <script type="text/javascript" charset="utf8" src="/js/bootstrap-switch.js"></script>
     <script type="text/javascript" charset="utf8" src="/bootstrap/js/bootstrap.min.js"></script>

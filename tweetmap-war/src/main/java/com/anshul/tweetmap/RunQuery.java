@@ -5,6 +5,15 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.Collections;
+import java.util.LinkedHashMap;
 
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
@@ -34,6 +43,8 @@ public class RunQuery extends HttpServlet {
 		DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
 		Query query = new Query("Tweet");
 		List<Entity> greetings = datastore.prepare(query).asList(FetchOptions.Builder.withLimit(10000).chunkSize(1000));
+		HashMap<String, Integer> counter = new HashMap<String, Integer>();
+		Map<String, Integer> counter2;
 		if (!greetings.isEmpty()) {
 			try {
 				for (Entity greeting : greetings) {
@@ -46,6 +57,18 @@ public class RunQuery extends HttpServlet {
 					
 					geometry.put("coordinates", coordinates);
 					tweet.put("geometry", geometry);
+					String hash = (String) greeting.getProperty("hashtags");
+					if(!hash.equals("")){
+						String[] hashes = hash.split("\\s");
+						for (String a : hashes) {
+							if (counter.containsKey(a)) {
+								int oldValue = counter.get(a);
+								counter.put(a, oldValue + 1);
+							} else {
+								counter.put(a, 1);
+							}
+						}
+					}
 					
 					JSONObject properties = new JSONObject();
 					properties.put("text", greeting.getProperty("text"));
@@ -59,6 +82,27 @@ public class RunQuery extends HttpServlet {
 					tweets.add(tweet);
 				}
 				json.put("features", tweets);
+				//System.out.println(counter.toString());
+				counter2 = sortByValues(counter);
+				//System.out.println(counter2);
+				JSONArray hashtags = new JSONArray();
+				//List<String> keys = new ArrayList<String>(counter2.keySet());
+				int cnt = 0;
+				for(String key:counter2.keySet()){
+					if(cnt == 0) {
+						cnt++;
+						continue;
+					}
+					if(cnt == 10)
+						break;
+					JSONObject hash = new JSONObject();
+					hash.put("hashtag", key);
+					hash.put("frequency", counter2.get(key));
+					hashtags.add(hash);
+					//System.out.println(key);
+					cnt++;
+				}
+				json.put("hash", hashtags);
 				json.put("type", "FeatureCollection");
 				
 			}
@@ -66,10 +110,33 @@ public class RunQuery extends HttpServlet {
 				jse.printStackTrace();
 			}
 //			resp.setContentType("application/json");
-//			resp.getWriter().write(json.toString());
+//			resp.getWriter().write(json.toString());	
 			String jsonPoutput = callBackJavaScripMethodName + "("+ json.toString() + ");";
 			resp.setContentType("text/javascript");
 			resp.getWriter().println(jsonPoutput);
 		}
 	}
+	
+	public static <K extends Comparable,V extends Comparable> Map<K,V> sortByValues(Map<K,V> map){
+        List<Map.Entry<K,V>> entries = new LinkedList<Map.Entry<K,V>>(map.entrySet());
+      
+        Collections.sort(entries, new Comparator<Map.Entry<K,V>>() {
+
+            @Override
+            public int compare(Entry<K, V> o1, Entry<K, V> o2) {
+                return o2.getValue().compareTo(o1.getValue());
+            }
+        });
+      
+        //LinkedHashMap will keep the keys in the order they are inserted
+        //which is currently sorted on natural ordering
+        Map<K,V> sortedMap = new LinkedHashMap<K,V>();
+      
+        for(Map.Entry<K,V> entry: entries){
+            sortedMap.put(entry.getKey(), entry.getValue());
+        }
+      
+        return sortedMap;
+    }
+
 }

@@ -1,6 +1,14 @@
 package com.anshul.tweetmap;
 
 import java.io.IOException;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -30,7 +38,8 @@ public class QueryServlet extends HttpServlet {
 		
 		IndexSpec indexSpec = IndexSpec.newBuilder().setName("TweetSearch").build(); 
 		Index index = SearchServiceFactory.getSearchService().getIndex(indexSpec);
-		
+		HashMap<String, Integer> counter = new HashMap<String, Integer>();
+		Map<String, Integer> counter2;
 		try {
 		    //String queryString = "product: piano AND price &lt; 5000";
 			QueryOptions options = QueryOptions.newBuilder()
@@ -53,6 +62,19 @@ public class QueryServlet extends HttpServlet {
 				geometry.put("coordinates", coordinates);
 				tweet.put("geometry", geometry);
 				
+				String hash = (String) document.getOnlyField("hashtags").getText();
+				if(!hash.equals("")){
+					String[] hashes = hash.split("\\s");
+					for (String a : hashes) {
+						if (counter.containsKey(a)) {
+							int oldValue = counter.get(a);
+							counter.put(a, oldValue + 1);
+						} else {
+							counter.put(a, 1);
+						}
+					}
+				}
+				
 				JSONObject properties = new JSONObject();
 				properties.put("text", document.getOnlyField("text").getText());
 				properties.put("userImage", document.getOnlyField("userImage").getAtom());
@@ -64,6 +86,26 @@ public class QueryServlet extends HttpServlet {
 
 				tweets.add(tweet);
 		    }
+		    counter2 = sortByValues(counter);
+			//System.out.println(counter2);
+			JSONArray hashtags = new JSONArray();
+			//List<String> keys = new ArrayList<String>(counter2.keySet());
+			int cnt = 0;
+			for(String key:counter2.keySet()){
+				if(cnt == 0) {
+					cnt++;
+					continue;
+				}
+				if(cnt == 10)
+					break;
+				JSONObject hash = new JSONObject();
+				hash.put("hashtag", key);
+				hash.put("frequency", counter2.get(key));
+				hashtags.add(hash);
+				//System.out.println(key);
+				cnt++;
+			}
+			json.put("hash", hashtags);
 		    json.put("features", tweets);
 			json.put("type", "FeatureCollection");
 		} catch (SearchException e) {
@@ -76,4 +118,26 @@ public class QueryServlet extends HttpServlet {
 		resp.setContentType("text/javascript");
 		resp.getWriter().println(jsonPoutput);
 	}
+	
+	public static <K extends Comparable,V extends Comparable> Map<K,V> sortByValues(Map<K,V> map){
+        List<Map.Entry<K,V>> entries = new LinkedList<Map.Entry<K,V>>(map.entrySet());
+      
+        Collections.sort(entries, new Comparator<Map.Entry<K,V>>() {
+
+            @Override
+            public int compare(Entry<K, V> o1, Entry<K, V> o2) {
+                return o2.getValue().compareTo(o1.getValue());
+            }
+        });
+      
+        //LinkedHashMap will keep the keys in the order they are inserted
+        //which is currently sorted on natural ordering
+        Map<K,V> sortedMap = new LinkedHashMap<K,V>();
+      
+        for(Map.Entry<K,V> entry: entries){
+            sortedMap.put(entry.getKey(), entry.getValue());
+        }
+      
+        return sortedMap;
+    }
 }
