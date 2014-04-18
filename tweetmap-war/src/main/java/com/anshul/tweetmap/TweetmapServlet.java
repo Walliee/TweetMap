@@ -58,13 +58,13 @@ public class TweetmapServlet extends HttpServlet {
 	
 	try {
 		//for(int i=1;i<=1;i++) {
-			URL url = new URL("https://s3-us-west-2.amazonaws.com/com.tweetmap/test"+fileNumber+".json");
-			URLConnection connection = url.openConnection();
-			connection.setDoInput(true);
-			InputStream inStream = connection.getInputStream();
-			BufferedReader input = new BufferedReader(new InputStreamReader(  
-			        inStream));  
-			//FileReader input = new FileReader("/Users/Walliee/Documents/workspace/twitter/test"+i+".json");
+//			URL url = new URL("https://s3-us-west-2.amazonaws.com/com.tweetmap/test"+fileNumber+".json");
+//			URLConnection connection = url.openConnection();
+//			connection.setDoInput(true);
+//			InputStream inStream = connection.getInputStream();
+//			BufferedReader input = new BufferedReader(new InputStreamReader(  
+//			        inStream));  
+			FileReader input = new FileReader("/Users/Walliee/Documents/workspace/twitter/test"+fileNumber+".json");
 			Object obj = parser.parse(input);
 			JSONObject jsonObject =  (JSONObject) obj;
 			JSONArray jsonArray = (JSONArray) jsonObject.get("tweets");			

@@ -7,6 +7,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URL;
 import java.net.URLConnection;
+import java.io.FileReader;
 
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -50,13 +51,13 @@ public class IndexBuilderServlet extends HttpServlet {
   public void put(int fileNumber) {
 	  JSONParser parser = new JSONParser();
 	  try {
-		  	URL url = new URL("https://s3-us-west-2.amazonaws.com/com.tweetmap/test"+fileNumber+".json");
-			URLConnection connection = url.openConnection();
-			connection.setDoInput(true);
-			InputStream inStream = connection.getInputStream();
-			BufferedReader input = new BufferedReader(new InputStreamReader(  
-			        inStream));  
-			//FileReader input = new FileReader("/Users/Walliee/Documents/workspace/twitter/test"+i+".json");
+//		  	URL url = new URL("https://s3-us-west-2.amazonaws.com/com.tweetmap/test"+fileNumber+".json");
+//			URLConnection connection = url.openConnection();
+//			connection.setDoInput(true);
+//			InputStream inStream = connection.getInputStream();
+//			BufferedReader input = new BufferedReader(new InputStreamReader(  
+//			        inStream));  
+			FileReader input = new FileReader("/Users/Walliee/Documents/workspace/twitter/test"+fileNumber+".json");
 			Object obj = parser.parse(input);
 			JSONObject jsonObject =  (JSONObject) obj;
 			JSONArray jsonArray = (JSONArray) jsonObject.get("tweets");			
@@ -89,7 +90,7 @@ public class IndexBuilderServlet extends HttpServlet {
 						    .build();
 						    
 					docList.add(doc);
-					if(docList.size()==200) {
+					if(docList.size()==200 || !itr.hasNext()) {
 						try {
 							index.put(docList);
 							docList.clear();

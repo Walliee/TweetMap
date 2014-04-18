@@ -25,7 +25,7 @@ import com.google.appengine.api.search.IndexSpec;
 import com.google.appengine.api.search.SearchServiceFactory;
 import com.google.appengine.api.search.Query;
 import com.google.appengine.api.search.QueryOptions;
-//import com.google.appengine.api.search.Document;
+import com.google.appengine.api.search.Cursor;
 
 public class QueryServlet extends HttpServlet {
 	@Override
@@ -41,51 +41,63 @@ public class QueryServlet extends HttpServlet {
 		HashMap<String, Integer> counter = new HashMap<String, Integer>();
 		Map<String, Integer> counter2;
 		try {
-		    //String queryString = "product: piano AND price &lt; 5000";
-			QueryOptions options = QueryOptions.newBuilder()
-				     				.setLimit(1000)
-				     				.build();
-			Query query = Query.newBuilder()
-							.setOptions(options)
-							.build(queryString);
-		    Results<ScoredDocument> results = index.search(query);
-
-		    // Iterate over the documents in the results
-		    for (ScoredDocument document : results) {
-		    	tweet = new JSONObject();
-				JSONObject geometry = new JSONObject();
-				geometry.put("type", "Point");
-				JSONArray coordinates = new JSONArray();
-				coordinates.add(document.getOnlyField("location").getGeoPoint().getLongitude());
-				coordinates.add(document.getOnlyField("location").getGeoPoint().getLatitude());
-				
-				geometry.put("coordinates", coordinates);
-				tweet.put("geometry", geometry);
-				
-				String hash = (String) document.getOnlyField("hashtags").getText();
-				if(!hash.equals("")){
-					String[] hashes = hash.split("\\s");
-					for (String a : hashes) {
-						if (counter.containsKey(a)) {
-							int oldValue = counter.get(a);
-							counter.put(a, oldValue + 1);
-						} else {
-							counter.put(a, 1);
+			Cursor cursor = Cursor.newBuilder().build();
+			do {
+				//String queryString = "product: piano AND price &lt; 5000";
+				QueryOptions options = QueryOptions.newBuilder()
+					     				.setLimit(1000)
+					     				.setCursor(cursor)
+					     				.build();
+				Query query = Query.newBuilder()
+								.setOptions(options)
+								.build(queryString);
+			    Results<ScoredDocument> results = index.search(query);
+			    int numberRetrieved = results.getNumberReturned();
+		        cursor = results.getCursor();
+		        
+		        if (numberRetrieved>0) {
+		        	for (ScoredDocument document : results) {
+				    	tweet = new JSONObject();
+						JSONObject geometry = new JSONObject();
+						geometry.put("type", "Point");
+						JSONArray coordinates = new JSONArray();
+						coordinates.add(document.getOnlyField("location").getGeoPoint().getLongitude());
+						coordinates.add(document.getOnlyField("location").getGeoPoint().getLatitude());
+						
+						geometry.put("coordinates", coordinates);
+						tweet.put("geometry", geometry);
+						
+						String hash = (String) document.getOnlyField("hashtags").getText();
+						if(!hash.equals("")){
+							String[] hashes = hash.split("\\s");
+							for (String a : hashes) {
+								if (counter.containsKey(a)) {
+									int oldValue = counter.get(a);
+									counter.put(a, oldValue + 1);
+								} else {
+									counter.put(a, 1);
+								}
+							}
 						}
-					}
-				}
-				
-				JSONObject properties = new JSONObject();
-				properties.put("text", document.getOnlyField("text").getText());
-				properties.put("userImage", document.getOnlyField("userImage").getAtom());
-				properties.put("user", document.getOnlyField("user").getAtom());
-				properties.put("dateCreated", document.getOnlyField("dateCreated").getDate().toString());
-				tweet.put("properties", properties);
-				
-				tweet.put("type", "Feature");
+						
+						JSONObject properties = new JSONObject();
+						properties.put("text", document.getOnlyField("text").getText());
+						properties.put("userImage", document.getOnlyField("userImage").getAtom());
+						properties.put("user", document.getOnlyField("user").getAtom());
+						properties.put("dateCreated", document.getOnlyField("dateCreated").getDate().toString());
+						tweet.put("properties", properties);
+						
+						tweet.put("type", "Feature");
 
-				tweets.add(tweet);
-		    }
+						tweets.add(tweet);
+				    }
+		        	//System.out.println(tweets);
+		        	numberRetrieved=0;
+		        }
+			    // Iterate over the documents in the results
+			    
+			} while (cursor!=null);
+		    
 		    counter2 = sortByValues(counter);
 			//System.out.println(counter2);
 			JSONArray hashtags = new JSONArray();
