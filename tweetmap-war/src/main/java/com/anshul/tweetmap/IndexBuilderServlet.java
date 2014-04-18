@@ -51,13 +51,13 @@ public class IndexBuilderServlet extends HttpServlet {
   public void put(int fileNumber) {
 	  JSONParser parser = new JSONParser();
 	  try {
-//		  	URL url = new URL("https://s3-us-west-2.amazonaws.com/com.tweetmap/test"+fileNumber+".json");
-//			URLConnection connection = url.openConnection();
-//			connection.setDoInput(true);
-//			InputStream inStream = connection.getInputStream();
-//			BufferedReader input = new BufferedReader(new InputStreamReader(  
-//			        inStream));  
-			FileReader input = new FileReader("/Users/Walliee/Documents/workspace/twitter/test"+fileNumber+".json");
+		  	URL url = new URL("https://s3-us-west-2.amazonaws.com/com.tweetmap/test"+fileNumber+".json");
+			URLConnection connection = url.openConnection();
+			connection.setDoInput(true);
+			InputStream inStream = connection.getInputStream();
+			BufferedReader input = new BufferedReader(new InputStreamReader(  
+			        inStream));  
+			//FileReader input = new FileReader("/Users/Walliee/Documents/workspace/twitter/test"+fileNumber+".json");
 			Object obj = parser.parse(input);
 			JSONObject jsonObject =  (JSONObject) obj;
 			JSONArray jsonArray = (JSONArray) jsonObject.get("tweets");			
@@ -70,7 +70,7 @@ public class IndexBuilderServlet extends HttpServlet {
 				Status status = null;
 				try {
 					status = (Status) TwitterObjectFactory.createStatus(itr.next().toString());
-					System.out.println(status.getUser().getName());
+					//System.out.println(status.getUser().getName());
 					//Entity greeting = new Entity("Tweet");
 					GeoPoint geoPoint = new GeoPoint(status.getGeoLocation().getLatitude(), status.getGeoLocation().getLongitude());
 					HashtagEntity[] hashtagEntities = status.getHashtagEntities();

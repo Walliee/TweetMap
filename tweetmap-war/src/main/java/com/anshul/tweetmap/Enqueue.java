@@ -19,7 +19,7 @@ public class Enqueue extends HttpServlet {
 
         // Add the task to the default queue.
         Queue queue = QueueFactory.getDefaultQueue();
-        for(int i=file; i<file+53; i++) {
+        for(int i=file; i<file+10; i++) {
         	queue.add(withUrl("/tweetmap").param("file", Integer.toString(i)));
         	queue.add(withUrl("/indexbuild").param("file", Integer.toString(i)));
         }

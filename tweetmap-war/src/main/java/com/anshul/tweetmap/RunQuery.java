@@ -42,7 +42,7 @@ public class RunQuery extends HttpServlet {
 		
 		DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
 		Query query = new Query("Tweet");
-		List<Entity> greetings = datastore.prepare(query).asList(FetchOptions.Builder.withLimit(20000).chunkSize(1000));
+		List<Entity> greetings = datastore.prepare(query).asList(FetchOptions.Builder.withLimit(10000).chunkSize(1000));
 		HashMap<String, Integer> counter = new HashMap<String, Integer>();
 		Map<String, Integer> counter2;
 		if (!greetings.isEmpty()) {
